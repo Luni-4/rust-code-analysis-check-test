@@ -1,0 +1,41 @@
+name: test
+
+on: [push, pull_request]
+
+jobs:
+  rust-code-analysis-check:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Install stable
+      uses: actions-rs/toolchain@v1
+      with:
+        profile: minimal
+        toolchain: stable
+        override: true
+
+    # FIXME: We need to use a specific version, not master!
+#    - name: Run install
+#      env:
+#        RCA_CLI_PATH: https://github.com/mozilla/rust-code-analysis.git
+#      run: |
+#        cargo install --git $RCA_CLI_PATH --branch master rust-code-analysis-cli
+#
+    - name: Install
+      run: |
+         mv rust-code-analysis-cli /usr/share/rust/.cargo/bin
+
+    - uses: actions/upload-artifact@v2
+      with:
+       name: my-artifact
+       path: data/test.html
+
+    - name: Run rust-code-analysis-check
+      uses: Luni-4/rust-code-analysis-check@master
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        directory: src
+        name: test
